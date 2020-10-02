@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components';
+import { useCart } from '../context/CartContext';
 
 const StoreWrapper = styled.div`
 ul {
@@ -32,7 +33,15 @@ ul {
 }
 `;
 
-function Store({ products, cart, handleClick }) {
+function Store({ products }) {
+  const { cart, add, increment} = useCart();
+  const handleClick = (product) => {
+    if(Object.keys(cart).includes(product.id.toString())){
+      increment(product);
+    }else{
+      add(product);
+    }
+  };
   return (
     <StoreWrapper>
       <ul>
@@ -40,8 +49,8 @@ function Store({ products, cart, handleClick }) {
           <li key={index}>
             <p className="name">{product.name}</p>
             <p className="price">$ {product.price}</p>
-            <button onClick={() => handleClick(product.id)}>{
-              Object.keys(cart.cart).includes(product.id.toString()) ?
+            <button onClick={() => handleClick(product)}>{
+              Object.keys(cart).includes(product.id.toString()) ?
                 "More" : "Add"
             }</button>
           </li>

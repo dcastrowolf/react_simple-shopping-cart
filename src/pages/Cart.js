@@ -1,37 +1,50 @@
-import React from 'react'
-import PropTypes from 'prop-types'
+import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { useCart } from '../context/CartContext';
 
 const CartWrapper = styled.div`
-table {
-  margin: 0 auto;
-  width: 80%;
+  table {
+    margin: 0 auto;
+    width: 80%;
 
-  thead tr td,
-  tbody tr td {
-    border-bottom: 1px solid #666666;
-  }
-
-  td {
-    &:first-child {
-      text-align: left;
+    thead tr td,
+    tbody tr td {
+      border-bottom: 1px solid #666666;
     }
 
-    &:last-child {
-      text-align: right;
+    td {
+      &:first-child {
+        text-align: left;
+      }
+
+      &:last-child {
+        text-align: right;
+      }
     }
   }
-}
 
-button {
-  border: 1px solid #000000;
-  background: transparent;
-  cursor: pointer;
-  margin: 0 10px;
-}
+  button {
+    border: 1px solid #000000;
+    background: transparent;
+    cursor: pointer;
+    margin: 0 10px;
+  }
 `;
 
-function Cart({ cart, handleIncrement, handleDecrement, handleReset }) {
+function Cart({ products }) {
+  const { cart, total, count, increment, decrement, reset } = useCart();
+
+  const handleDecrement = (id) => {
+    const product = products.filter((product) => product.id === id)[0];
+    decrement(product);
+  };
+
+  const handleIncrement = (id) => {
+    const product = products.filter((product) => product.id === id)[0];
+    increment(product);
+  };
+
   return (
     <CartWrapper>
       <table>
@@ -44,40 +57,43 @@ function Cart({ cart, handleIncrement, handleDecrement, handleReset }) {
           </tr>
         </thead>
         <tbody>
-          {cart.count ? Object.keys(cart.cart).map(key =>
-            (
+          {count ? (
+            Object.keys(cart).map((key) => (
               <tr key={key}>
-                <td>{cart.cart[key].name}</td>
+                <td>{cart[key].name}</td>
                 <td>
-                  <button onClick={() => handleDecrement(Number(key))}>-</button>
-                  {cart.cart[key].quantity}
-                  <button onClick={() => handleIncrement(Number(key))}>+</button>
+                  <button onClick={() => handleDecrement(Number(key))}>
+                    -
+                  </button>
+                  {cart[key].quantity}
+                  <button onClick={() => handleIncrement(Number(key))}>
+                    +
+                  </button>
                 </td>
-                <td>$ {cart.cart[key].price}</td>
-                <td>$ {cart.cart[key].price * cart.cart[key].quantity}</td>
+                <td>$ {cart[key].price}</td>
+                <td>$ {cart[key].price * cart[key].quantity}</td>
               </tr>
-            )
-          ) :
-            <tr><td colSpan="4">Cart empty</td></tr>
-          }
+            ))
+          ) : (
+            <tr>
+              <td colSpan="4">Cart empty</td>
+            </tr>
+          )}
         </tbody>
         <tfoot>
           <tr>
             <td colSpan="3"></td>
-            <td>$ {cart.total}</td>
+            <td>$ {total}</td>
           </tr>
         </tfoot>
       </table>
-      {!!cart.count && <button onClick={handleReset}>Reset</button>}
+      {!!count && <button onClick={() => reset()}>Reset</button>}
     </CartWrapper>
-  )
+  );
 }
 
 Cart.propTypes = {
-  cart: PropTypes.object.isRequired,
-  handleIncrement: PropTypes.func.isRequired,
-  handleDecrement: PropTypes.func.isRequired,
-  handleReset: PropTypes.func.isRequired,
-}
+  products: PropTypes.array.isRequired,
+};
 
 export default Cart;
